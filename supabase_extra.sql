@@ -91,3 +91,23 @@ begin
 end $$;
 revoke all on function public.tt_admin_set_password(uuid, text) from public, anon;
 grant execute on function public.tt_admin_set_password(uuid, text) to authenticated;
+
+-- 7) Kho luu ANH nghiem thu / anh dinh kem (Supabase Storage, bucket rieng tu "photos")
+--    Chi tai khoan co ho so trong user_profiles moi xem/tai/xoa duoc.
+insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+values ('photos', 'photos', false, 2097152, array['image/jpeg','image/png'])
+on conflict (id) do nothing;
+
+drop policy if exists tt_photos_select on storage.objects;
+create policy tt_photos_select on storage.objects for select to authenticated
+  using ( bucket_id = 'photos' and public.tt_role() is not null );
+drop policy if exists tt_photos_insert on storage.objects;
+create policy tt_photos_insert on storage.objects for insert to authenticated
+  with check ( bucket_id = 'photos' and public.tt_role() is not null );
+drop policy if exists tt_photos_update on storage.objects;
+create policy tt_photos_update on storage.objects for update to authenticated
+  using ( bucket_id = 'photos' and public.tt_role() is not null )
+  with check ( bucket_id = 'photos' and public.tt_role() is not null );
+drop policy if exists tt_photos_delete on storage.objects;
+create policy tt_photos_delete on storage.objects for delete to authenticated
+  using ( bucket_id = 'photos' and public.tt_role() is not null );
