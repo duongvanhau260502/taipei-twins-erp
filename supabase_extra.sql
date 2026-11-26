@@ -34,25 +34,25 @@ alter table public.app_kv enable row level security;
 --   catprice       : don gia trong danh muc tu them
 drop policy if exists app_kv_select on public.app_kv;
 create policy app_kv_select on public.app_kv for select to authenticated
-  using ( coll not in ('quotes','tpgia','poprice','moveup','catprice')
-          or public.tt_role() in ('ADMIN','QS','CHT','CHP') );
+  using ( public.tt_role() is not null and ( coll not in ('quotes','tpgia','poprice','moveup','catprice')
+          or public.tt_role() in ('ADMIN','QS','CHT','CHP') ) );
 
 drop policy if exists app_kv_insert on public.app_kv;
 create policy app_kv_insert on public.app_kv for insert to authenticated
-  with check ( coll not in ('quotes','tpgia','poprice','moveup','catprice')
-               or public.tt_role() in ('ADMIN','QS','CHT','CHP') );
+  with check ( public.tt_role() is not null and ( coll not in ('quotes','tpgia','poprice','moveup','catprice')
+               or public.tt_role() in ('ADMIN','QS','CHT','CHP') ) );
 
 drop policy if exists app_kv_update on public.app_kv;
 create policy app_kv_update on public.app_kv for update to authenticated
-  using      ( coll not in ('quotes','tpgia','poprice','moveup','catprice')
-               or public.tt_role() in ('ADMIN','QS','CHT','CHP') )
-  with check ( coll not in ('quotes','tpgia','poprice','moveup','catprice')
-               or public.tt_role() in ('ADMIN','QS','CHT','CHP') );
+  using      ( public.tt_role() is not null and ( coll not in ('quotes','tpgia','poprice','moveup','catprice')
+               or public.tt_role() in ('ADMIN','QS','CHT','CHP') ) )
+  with check ( public.tt_role() is not null and ( coll not in ('quotes','tpgia','poprice','moveup','catprice')
+               or public.tt_role() in ('ADMIN','QS','CHT','CHP') ) );
 
 drop policy if exists app_kv_delete on public.app_kv;
 create policy app_kv_delete on public.app_kv for delete to authenticated
-  using ( coll not in ('quotes','tpgia','poprice','moveup','catprice')
-          or public.tt_role() in ('ADMIN','QS','CHT','CHP') );
+  using ( public.tt_role() is not null and ( coll not in ('quotes','tpgia','poprice','moveup','catprice')
+          or public.tt_role() in ('ADMIN','QS','CHT','CHP') ) );
 
 -- 4) Realtime: bat cho cac bang web lang nghe (bo qua bang da co san trong publication)
 do $$
