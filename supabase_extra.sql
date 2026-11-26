@@ -71,3 +71,23 @@ end $$;
 -- 5) Kiem tra nhanh (tuy chon)
 -- select tablename, rowsecurity from pg_tables where schemaname='public' order by 1;
 -- select * from pg_publication_tables where pubname='supabase_realtime';
+
+-- 6) Dang nhap bang TEN DANG NHAP + Admin dat lai mat khau cho nhan vien
+--    Web ghep ten dang nhap thanh email an "<ten>@tt-erp.vn". Can TAT "Confirm email" trong Authentication.
+--    Ham duoi day chi ADMIN goi duoc: dat lai mat khau cua tai khoan khac (nut "Dat MK" trong tab Tai khoan).
+create or replace function public.tt_admin_set_password(target uuid, new_password text)
+returns void language plpgsql security definer set search_path = public, extensions as $$
+begin
+  if public.tt_role() is distinct from 'ADMIN' then
+    raise exception 'Chi ADMIN duoc doi mat khau';
+  end if;
+  if new_password is null or length(new_password) < 6 then
+    raise exception 'Mat khau toi thieu 6 ky tu';
+  end if;
+  update auth.users
+     set encrypted_password = crypt(new_password, gen_salt('bf')),
+         updated_at = now()
+   where id = target;
+end $$;
+revoke all on function public.tt_admin_set_password(uuid, text) from public, anon;
+grant execute on function public.tt_admin_set_password(uuid, text) to authenticated;
