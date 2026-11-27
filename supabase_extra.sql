@@ -111,3 +111,9 @@ create policy tt_photos_update on storage.objects for update to authenticated
 drop policy if exists tt_photos_delete on storage.objects;
 create policy tt_photos_delete on storage.objects for delete to authenticated
   using ( bucket_id = 'photos' and public.tt_role() is not null );
+
+-- 8) Cho phep luu PDF don gui NCC / bien ban giao hang (va anh WEBP) vao bucket "photos"
+update storage.buckets
+   set allowed_mime_types = array['image/jpeg','image/png','image/webp','application/pdf'],
+       file_size_limit = 2097152
+ where id = 'photos';
